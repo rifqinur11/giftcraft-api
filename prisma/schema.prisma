@@ -1,0 +1,172 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Tenant {
+  id        String     @id @default(uuid())
+  name      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  users     User[]
+  products  Product[]
+  invoices  Invoice[]
+  payments  Payment[]
+  orders    Order[]
+  customers Customer[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("USER") // ADMIN, USER, EMPLOYEE
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model ProductImage {
+  id          String    @id @default(uuid())
+  base64Image String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Product {
+  id             String       @id @default(uuid())
+  name           String
+  sku            String
+  price          Float
+  stock          Int
+  productImageId String
+  productImage   ProductImage @relation(fields: [productImageId], references: [id], onDelete: Cascade)
+  description    String?
+  categoryId     String
+  category       Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  tenantId       String
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  orderItems     OrderItem[]
+
+  @@unique([sku, tenantId]) // sku is unique within a tenant
+}
+
+model Invoice {
+  id            String    @id @default(uuid())
+  invoiceNumber String    @unique
+  amount        Float
+  status        String    @default("UNPAID") // UNPAID, PAID, CANCELLED
+  note          String?   @db.Text
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  customer      Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId    String?
+  payments      Payment[]
+}
+
+model PaymentMethod {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  payments    Payment[]
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  invoiceId       String
+  paymentMethodId String
+  amount          Float
+  status          String        @default("PENDING") // PENDING, PAID, OVERDUE
+  paymentAt       DateTime
+  referenceNumber String        @unique
+  transactionId   String
+  note            String?       @db.Text
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
+  tenantId        String
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  orderNumber   String      @unique
+  totalAmount   Float
+  totalShipping Float?      @default(0)
+  orderItems    OrderItem[]
+  orderStatus   String      @default("PENDING") // PENDING, ONGOING, COMPLETED, REJECTED
+  note          String?     @db.Text
+  tenantId      String
+  tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  shipments     Shipment[]
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+  price     Float
+  subtotal  Float
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id        String    @id @default(uuid())
+  name      String
+  phone     String
+  address   String
+  city      String
+  state     String
+  zip       String
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  invoices  Invoice[]
+}
+
+model Shipment {
+  id             String     @id @default(uuid())
+  orderId        String
+  order          Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  expeditionName   String
+  expeditionType   String?
+  trackingNumber   String
+  cost             Float?
+  status           String     @default("PENDING") // PENDING, DELIVERED, CANCELLED, RETURNED
+  note             String?    @db.Text
+  createdAt        DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
