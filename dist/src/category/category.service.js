@@ -12,18 +12,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CategoryService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const general_success_dto_1 = require("../common/dto/general-success.dto");
 let CategoryService = class CategoryService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
     async create(createCategoryDto, tenantId) {
-        return this.prisma.raw.category.create({
+        await this.prisma.raw.category.create({
             data: createCategoryDto,
         });
+        return new general_success_dto_1.GeneralSuccessDto("CAT01 - 201", "Category created successfully", undefined);
     }
     async findAll() {
-        return this.prisma.raw.category.findMany();
+        const data = await this.prisma.raw.category.findMany();
+        return new general_success_dto_1.GeneralSuccessDto(undefined, undefined, data);
+    }
+    async findAllWithPaginate(paginationDto) {
+        const { page = 1, limit = 10 } = paginationDto;
+        const skip = (page - 1) * limit;
+        const [data, totalItems] = await Promise.all([
+            this.prisma.raw.category.findMany({
+                skip: skip,
+                take: limit,
+                orderBy: { name: 'asc' }
+            }),
+            this.prisma.raw.category.count()
+        ]);
+        const totalPages = Math.ceil(totalItems / limit);
+        const meta = {
+            totalItems,
+            totalPages,
+            page,
+            limit,
+        };
+        return new general_success_dto_1.GeneralSuccessDto(undefined, undefined, data, meta);
     }
     async findOne(id) {
         const category = await this.prisma.raw.category.findUnique({

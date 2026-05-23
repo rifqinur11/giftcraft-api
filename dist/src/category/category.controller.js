@@ -23,11 +23,18 @@ let CategoryController = class CategoryController {
     constructor(categoryService) {
         this.categoryService = categoryService;
     }
-    create(createCategoryDto, tenantId) {
+    async create(createCategoryDto, tenantId) {
         return this.categoryService.create(createCategoryDto, tenantId);
     }
     findAll() {
         return this.categoryService.findAll();
+    }
+    findAllWithPaginate(page, limit) {
+        const paginationDto = {
+            page: page ? Number(page) : undefined,
+            limit: limit ? Number(limit) : undefined,
+        };
+        return this.categoryService.findAllWithPaginate(paginationDto);
     }
     findOne(id) {
         return this.categoryService.findOne(id);
@@ -46,7 +53,7 @@ __decorate([
     __param(1, (0, tenant_id_decorator_1.CurrentTenantId)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_category_dto_1.CreateCategoryDto, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], CategoryController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
@@ -54,6 +61,14 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], CategoryController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('list'),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], CategoryController.prototype, "findAllWithPaginate", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
