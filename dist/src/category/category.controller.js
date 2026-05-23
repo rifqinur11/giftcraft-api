@@ -26,9 +26,6 @@ let CategoryController = class CategoryController {
     async create(createCategoryDto, tenantId) {
         return this.categoryService.create(createCategoryDto, tenantId);
     }
-    findAll() {
-        return this.categoryService.findAll();
-    }
     findAllWithPaginate(page, limit) {
         const paginationDto = {
             page: page ? Number(page) : undefined,
@@ -48,7 +45,7 @@ let CategoryController = class CategoryController {
 };
 exports.CategoryController = CategoryController;
 __decorate([
-    (0, common_1.Post)(),
+    (0, common_1.Post)('category'),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, tenant_id_decorator_1.CurrentTenantId)()),
     __metadata("design:type", Function),
@@ -56,13 +53,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CategoryController.prototype, "create", null);
 __decorate([
-    (0, common_1.Get)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], CategoryController.prototype, "findAll", null);
-__decorate([
-    (0, common_1.Get)('list'),
+    (0, common_1.Get)('categories'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
@@ -70,14 +61,14 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CategoryController.prototype, "findAllWithPaginate", null);
 __decorate([
-    (0, common_1.Get)(':id'),
+    (0, common_1.Get)('category/:id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], CategoryController.prototype, "findOne", null);
 __decorate([
-    (0, common_1.Patch)(':id'),
+    (0, common_1.Patch)('category/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -92,7 +83,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CategoryController.prototype, "remove", null);
 exports.CategoryController = CategoryController = __decorate([
-    (0, common_1.Controller)('category'),
+    (0, common_1.Controller)(),
     __metadata("design:paramtypes", [category_service_1.CategoryService])
 ], CategoryController);
 //# sourceMappingURL=category.controller.js.map

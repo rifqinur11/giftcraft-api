@@ -17,13 +17,14 @@ export class CategoryService {
     return new GeneralSuccessDto("CAT01 - 201", "Category created successfully", undefined);
   }
 
-  async findAll() {
-    const data = await this.prisma.raw.category.findMany();
-    return new GeneralSuccessDto(undefined, undefined, data);
-  }
-
   async findAllWithPaginate(paginationDto: PaginationDto) {
     const { page = 1, limit = 10 } = paginationDto;
+
+    if (page === 0 || limit === 0) {
+      const data = await this.prisma.raw.category.findMany();
+      return new GeneralSuccessDto(undefined, undefined, data, undefined);
+    }
+
     const skip = (page - 1) * limit;
 
     const [data, totalItems] = await Promise.all([

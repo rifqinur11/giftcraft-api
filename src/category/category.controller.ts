@@ -5,11 +5,11 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CurrentTenantId } from '../common/tenant/tenant-id.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
-@Controller('category')
+@Controller()
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) { }
 
-  @Post()
+  @Post('category')
   async create(
     @Body() createCategoryDto: CreateCategoryDto,
     @CurrentTenantId() tenantId: string,
@@ -17,12 +17,7 @@ export class CategoryController {
     return this.categoryService.create(createCategoryDto, tenantId);
   }
 
-  @Get()
-  findAll() {
-    return this.categoryService.findAll();
-  }
-
-  @Get('list')
+  @Get('categories')
   findAllWithPaginate(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -34,12 +29,12 @@ export class CategoryController {
     return this.categoryService.findAllWithPaginate(paginationDto);
   }
 
-  @Get(':id')
+  @Get('category/:id')
   findOne(@Param('id') id: string) {
     return this.categoryService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('category/:id')
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoryService.update(id, updateCategoryDto);
   }
